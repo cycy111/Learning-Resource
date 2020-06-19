@@ -10,7 +10,8 @@
 * ViewController.swift : 用于编写代码
 * Main.storyboard : 用于创建应用的用户界面, 默认里面包含一个空白的view, 可以在其中填充包含在Utilities panel下的Object Library里面的元素(标签, 按钮等).
 
-## 连接代码和storyboard
+## 关联代码和storyboard
+
 关联ViewController.swift 和Main.storyboard, 使界面和代码关联. XCode工作区有几种工作模式,在XCode工具栏可以为编辑区切换不同的布局:
 <img src="images/Xcode-assistant-editor.png">
 三种不同的布局:
