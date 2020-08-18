@@ -169,3 +169,63 @@ console.log('Done!');
 <img src="../images/javascript-event-loop.png">
 
 JavaScript事件循环是一个持续运行的过程，可协调调用堆栈和回调队列之间的任务以实现并发。
+
+## 提升(Hoisting)
+JavaScript提升发生在执行上下文的创建阶段，该阶段将变量和函数声明移到脚本的顶部。
+JavaScript引擎会提升使用let关键字声明的变量，但不会将其初始化为使用var关键字声明的变量。
+函数表达式和箭头函数未悬挂。
+### Function hoisting
+```
+let x = 20,
+    y = 10;
+
+let result = add(x,y);
+console.log(result);
+
+function add(a, b){
+return a + b;
+}
+```
+相当于:
+```
+function add(a, b){
+    return a + b;
+}
+
+let x = 20,
+    y = 10;
+
+let result = add(x,y);
+console.log(result);
+```
+
+### function expression
+将add从一般方法改成方法表达式:
+```
+let x = 20,
+    y = 10;
+
+let result = add(x,y);
+console.log(result);
+
+var add = function(x, y) {
+return x + y;
+}
+```
+这样会报错:
+```
+"TypeError: add is not a function   
+```
+
+### arrow function
+将add方法表达式改成箭头函数:
+```
+let x = 20,
+    y = 10;
+
+let result = add(x,y);
+console.log(result);
+
+var add = (x, y) => x + y;
+```
+也会出现和函数表达式同样的错.
