@@ -416,6 +416,164 @@ console.log(ssn === citizenID); // true
 let systemID = Symbol('sys');
 console.log(Symbol.keyFor(systemID)); // undefined
 ```
+### 使用Symbol
+#### 使用它作为唯一值
+```javascript
+let statuses = {
+    OPEN: Symbol('Open'),
+    IN_PROGRESS: Symbol('In progress'),
+    COMPLETED: Symbol('Completed'),
+    HOLD: Symbol('On hold'),
+    CANCELED: Symbol('Canceled')
+};
+// complete a task
+task.setStatus(statuses.COMPLETED);
+```
+#### 使用它作为对象的可计算属性
+```javascript
+let status = Symbol('status');
+let task = {
+    [status]: statuses.OPEN,
+    description: 'Learn ES6 Symbol'
+};
+console.log(task);
+```
+使用Object.keys()获取一个对象中所有可遍历的属性：
+```javascript
+console.log(Object.keys(task)); // ["description"]
+```
+使用Object.getOwnPropertyNames()获取对象中所有的属性：
+```javascript
+console.log(Object.getOwnPropertyNames(task)); // ["description"]
+```
+使用Object.getOwnPropertySymbols()获取对象中所有属性symbols:
+```javascript
+console.log(Object.getOwnPropertySymbols(task)); //[Symbol(status)]
+```
+### Well-known symbols
+Well-known symbols即ES6中预定义的symbols, Well-known symbols表示JavaScript中公共的行为。每个Well-known symbols都是
+静态属性
+#### Symbol.hasInstance
+Symbol.hasInstance是一个可以改变instanceof操作符的行为的symbol
+```javascript
+//instanceof的一般用法
+obj instanceof type;
+```
+JavaScript调用Symbol.hasIntance方法
+```javascript
+type[Symbol.hasInstance](obj);
+```
+
+```JavaScript
+class Stack {
+}
+console.log([] instanceof Stack); // false
+```
+想让[]数组成为Stack的实例，可以使用Symbol.hasIntance方法：
+```javascript
+class Stack {
+    static [Symbol.hasInstance](obj) {
+        return Array.isArray(obj);
+    }
+}
+console.log([] instanceof Stack); // true
+```
+#### Symbol.iterator
+通过System.iterator symbol访问默认的遍历对象：
+```javascript
+var iterator = numbers[Symbol.iterator]();
+
+console.log(iterator.next()); // Object {value: 1, done: false}
+console.log(iterator.next()); // Object {value: 2, done: false}
+console.log(iterator.next()); // Object {value: 3, done: false}
+console.log(iterator.next()); // Object {value: undefined, done: true}
+```
+默认情况下，一个集合不是可遍历的，可以这样是其可遍历：
+```javascript
+class List {
+    constructor() {
+        this.elements = [];
+    }
+
+    add(element) {
+        this.elements.push(element);
+        return this;
+    }
+
+    *[Symbol.iterator]() {
+        for (let element of this.elements) {
+            yield  element;
+        }
+    }
+}
+
+let chars = new List();
+chars.add('A')
+     .add('B')
+     .add('C');
+
+// because of the Symbol.iterator
+for (let c of chars) {
+    console.log(c);
+}
+
+// A
+// B
+// C
+```
+#### Symbol.isConcatSpreadable
+ES6之前：
+```javascript
+let list = {
+    0: 'JavaScript',
+    1: 'Symbol',
+    length: 2
+};
+let message = ['Learning'].concat(list);
+console.log(message); // ["Learning", Object]
+```
+ES6:
+```javascript
+let list = {
+    0: 'JavaScript',
+    1: 'Symbol',
+    length: 2,
+    [Symbol.isConcatSpreadable]: true
+};
+let message = ['Learning'].concat(list);
+console.log(message); // ["Learning", "JavaScript", "Symbol"]
+```
+#### Symbol.toPrimitive
+javascript引擎在美国标准类型的原型上定义Symbol.toPrimitive方法。
+Symbol.toPrimitive方法默认接收hint（隐式）参数， 这个参数是三个值：“number”, “string”, and “default”其中的一个。
+hint参数配置返回值的类型。hint参数被JavaScript引擎基于被使用的对象的上下文填充。
+```JavaScript
+function Money(amount, currency) {
+    this.amount = amount;
+    this.currency = currency;
+}
+Money.prototype[Symbol.toPrimitive] = function(hint) {
+    var result;
+    switch (hint) {
+        case 'string':
+            result = this.amount + this.currency;
+            break;
+        case 'number':
+            result = this.amount;
+            break;
+        case 'default':
+            result = this.amount + this.currency;
+            break;
+    }
+    return result;
+}
+
+var price = new Money(799, 'USD');
+
+console.log('Price is ' + price); // Price is 799USD
+console.log(+price + 1); // 800
+console.log(String(price)); // 799USD
+```
 # ITERATORS & GENERATORS
 ## Iterators
 ES6新引进的循环结构：**for...of**
@@ -668,3 +826,9 @@ result is 1000
 ```
 
 * Using yield in an array
+
+# Promises
+## Promises
+## Promise Chaining
+Promise对象的实例方法（比如then(), catch(), or finally()）返回的是一个独立的promise对象，这个对象又可以再次调用
+promise的实例方法
