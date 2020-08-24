@@ -259,12 +259,9 @@ let Animal = class {
         console.log(this.type);
     }
 }
-
 let duck = new Animal('Duck');
-
 console.log(duck instanceof Animal); // true
 console.log(duck instanceof Object); // true
-
 console.log(typeof Animal); // function
 console.log(typeof Animal.prototype); // function
 ```
@@ -274,13 +271,11 @@ console.log(typeof Animal.prototype); // function
 function factory(aClass) {
     return new aClass();
 }
-
 let greeting = factory(class {
     sayHi() {
         console.log('Hi');
     }
 });
-
 greeting.sayHi(); // 'Hi'
 ```
 ### Singleton
@@ -293,9 +288,7 @@ let app = new class {
     start() {
         console.log(`Starting the ${this.name}...`);
     }
-
 }('Awesome App');
-
 app.start(); // Starting the Awesome App...
 ```
 ### Getter and setter
@@ -319,10 +312,8 @@ class Person {
         }
     }
 }
-
 let mary = new Person('Mary', 'Doe');
 console.log(mary.fullName); // Mary Doe
-
 // set new name
 mary.fullName = 'Mary William';
 console.log(mary.fullName); // Mary William
@@ -342,7 +333,6 @@ class Person {
         //...
     }
 }
-
 var john = new Person('John', 'Doe');
 console.log(john.fullName); // John Doe
 ```
@@ -352,7 +342,6 @@ ES6之前:
 Animal.make = function(type) {
     return new Animal(type);
 }
-
 var dog = Animal.make('Dog');
 dog.identify(); // Dog
 ```
@@ -369,7 +358,6 @@ lass Animal {
         return new Animal(type);
     }
 }
-
 var mouse = Animal.create('Mouse');
 mouse.identify(); // mouse
 ```
@@ -379,7 +367,7 @@ new.target对于在运行时检查函数是作为函数执行还是作为构造�
 #### JavaScript new.target in functions
 为检测方法是不是使用new调用的, 可以使用new.target.
 例如, 如果你不想让Person()作为函数被调用,可以这样写:
-```
+```javascript
 function Person(name) {
     if (!new.target) {
         throw "must use new operator with Person";
@@ -388,21 +376,19 @@ function Person(name) {
 }
 ```
 #### JavaScript new.target in constructors
-```
+``` javascript
 class Person {
     constructor(name) {
         this.name = name;
         console.log(new.target.name);
     }
 }
-
 class Employee extends Person {
     constructor(name, title) {
         super(name);
         this.title = title;
     }
 }
-
 let john = new Person('John Doe'); // Person
 let lily = new Employee('Lily Bush', 'Programmer'); // Employee
 ```
@@ -410,28 +396,275 @@ let lily = new Employee('Lily Bush', 'Programmer'); // Employee
 ## Symbol
 ES6新增了一个原生类型:Symbol
 ### Creating symbols
-```
+Symbol()函数接受一个可选参数作为描述,可以通过toString()方法访问symbol的描述属性:
+```javascript
 let s = Symbol('foo');
 let s = new Symbol(); // error
-```
-
-```
 console.log(Symbol() === Symbol()); // false
-```
-Symbol()函数接受一个可选参数作为描述,可以通过toString()方法访问symbol的描述属性:
-```
 let firstName = Symbol('first name'),
-    lastName = Symbol('last name');
+	lastName = Symbol('last name');
 console.log(firstName); // Symbol(first name)
 console.log(lastName); // Symbol(last name)
 ```
-### Sharing symbols
-全局符号注册表允许全局共享symbol, 使用Symbol.for()可以创建一个共享的symbol
-```
+
+	### Sharing symbols
+全局符号注册表允许全局共享symbol, 使用Symbol.for()方法可以创建一个共享的symbol
+```javascript
 let ssn = Symbol.for('ssn');
 let citizenID = Symbol.for('ssn');
 console.log(ssn === citizenID); // true
-
 let systemID = Symbol('sys');
 console.log(Symbol.keyFor(systemID)); // undefined
 ```
+# ITERATORS & GENERATORS
+## Iterators
+ES6新引进的循环结构：**for...of**
+遍历ranks数组：
+```javascript
+let ranks = ['A', 'B', 'C'];
+//ES6之前
+for (let i = 0; i < ranks.length; i++) {
+    console.log(ranks[i]);
+}
+//ES6
+for(let rank of ranks) {
+    console.log(rank);
+}
+```
+
+Iteration protocols:  iterable protocol and iterator protocol.
+### Iterator protocol
+一个对象完成了带有如下问题的接口，是一个iterator：
+* 是否还剩下其他元素
+* 如果还有元素，那这个元素是什么
+
+从技术的角度来说， 如果一个对象有一个返回两个属性（done和value）的next（）方法，被认为是一个iterator
+```javascript
+//调用next()返回next值
+{ value: 'next value', done: false }
+
+//如果最后一个值返回后再去调用next（）方法将会返回
+{done: true: value: undefined}
+```
+### Iterable protocol
+如果对象包含一个被叫做[Symbol.iterator]的方法，这个方法不带参数，并且返回一个符合iterator protocol的对象，我们称这个对象是可遍历的。
+创建对象：
+```javascript
+class Sequence {
+    constructor( start = 0, end = Infinity, interval = 1 ) {
+        this.start = start;
+        this.end = end;
+        this.interval = interval;
+    }
+    [Symbol.iterator]() {
+        let counter = 0;
+        let nextIndex = this.start;
+        return  {
+            next: () => {
+                if ( nextIndex <= this.end ) {
+                    let result = { value: nextIndex,  done: false }
+                    nextIndex += this.interval;
+                    counter++;
+                    return result;
+                }
+                return { value: counter, done: true };
+            }
+        }
+    }
+};
+```
+使用Sequence iterator ：
+```javascript
+let evenNumbers = new Sequence(2, 10, 2);
+
+for (const num of evenNumbers) {
+    console.log(num);
+}
+```
+### Cleaning up
+[Symbol.iterator]()除了返回next（），可能也会返回retrun()方法。 return（）方法在循环提早结束时被调用.
+```javascript
+class Sequence {
+    constructor( start = 0, end = Infinity, interval = 1 ) {
+        this.start = start;
+        this.end = end;
+        this.interval = interval;
+    }
+    [Symbol.iterator]() {
+        let counter = 0;
+        let nextIndex = this.start;
+        return  {
+            next: () => {
+                if ( nextIndex <= this.end ) {
+                    let result = { value: nextIndex,  done: false }
+                    nextIndex += this.interval;
+                    counter++;
+                    return result;
+                }
+                return { value: counter, done: true };
+            },
+            return: () => {
+                console.log('cleaning up...');
+                return { value: undefined, done: true };
+            }
+        }
+    }
+}
+```
+
+```javascript
+let oddNumbers = new Sequence(1, 10, 2);
+
+for (const num of oddNumbers) {
+    if( num > 7 ) {
+        break;
+    }
+    console.log(num);
+}
+
+```
+输出结果：
+```javascript
+1
+3
+5
+7
+cleaning up...
+```
+## 生成器函数（Generators）
+一般的函数在执行过程中是不中断的，ES6中引入了和一般函数不一样的新的函数：function generator or generator.
+一个generator 可以在中途中断，然后再从中断的位置继续执行：
+```javascript
+function* generate() {
+    console.log('invoked 1st time');
+    yield 1;
+    console.log('invoked 2nd time');
+    yield 2;
+}
+```
+* function前面的*号表示generate() 是一个generator
+* yield语句返回一个值，并且中断函数的执行
+
+下面调用generate()：
+```javascript
+let gen = generate();
+console.log(gen);
+```
+输出：
+```javascript
+Object [Generator] {}
+```
+一个generator 返回的是一个Generator 对象,它调用的时候没有执行函数体。
+Generator 对象返回的是一个有两个属性（value，done）的对象,也就是说Generator 是可遍历的对象。
+调用next（）：
+```javascript
+let result = gen.next();
+console.log(result);
+```
+输出：
+```javascript
+invoked 1st time
+{ value: 1, done: false }
+```
+### 实例
+1. 生成永无止境的序列:
+```javascript
+function* forever() {
+    let index = 0;
+    while (true) {
+        yield index++;
+    }
+}
+let f = forever();
+console.log(f.next()); // 0
+console.log(f.next()); // 1
+console.log(f.next()); // 2
+```
+2. 使用generators完成iterators
+```javascript
+class Sequence {
+    constructor( start = 0, end = Infinity, interval = 1 ) {
+        this.start = start;
+        this.end = end;
+        this.interval = interval;
+    }
+    * [Symbol.iterator]() {
+        for( let index = this.start; index <= this.end; index += this.interval ) {
+            yield index;
+        }
+    }
+}
+```
+生成奇数序列：
+```javascript
+let oddNumbers = new Sequence(1, 10, 2);
+for (const num of oddNumbers) {
+    console.log(num);
+}
+```
+输出：
+```javascript
+1
+3
+5
+7
+9
+```
+## yield
+### 介绍
+yield 的语法：
+```javascript
+[variable_name] = yield [expression];
+```
+### 使用实例
+*   Returning a value
+```javascript
+function* foo() { 
+    yield 1;
+    yield 2;
+    yield 3;
+}
+let f = foo();
+console.log(f.next());
+```
+输出：
+```
+{ value: 1, done: false }
+```
+
+*   Returning undefined
+```javascript
+function* bar() {
+    yield;
+}
+let b = bar();
+console.log(b.next());
+```
+
+输出：
+```
+{ value: undefined, done: false }
+```
+
+*  Passing a value to the next() method
+
+```javascript
+function* generate() {
+    let result = yield;
+    console.log(`result is ${result}`);
+}
+
+let g = generate();
+console.log(g.next()); 
+
+console.log(g.next(1000));
+```
+
+输出：
+```javascript
+{ value: undefined, done: false }
+result is 1000
+{ value: undefined, done: true }
+```
+
+* Using yield in an array
