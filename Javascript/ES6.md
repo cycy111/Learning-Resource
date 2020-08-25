@@ -826,9 +826,195 @@ result is 1000
 ```
 
 * Using yield in an array
+```javascript
+function* baz() {
+    let arr = [yield, yield];
+    console.log(arr);
+}
+var z = baz();
+console.log(z.next());  
+console.log(z.next(1)); 
+console.log(z.next(2));
+```
 
+* Using yield to return an array
+```javascript
+function* yieldArray() {
+    yield 1;
+    yield [ 20, 30, 40 ];
+}
+let y = yieldArray();
+console.log(y.next()); 
+console.log(y.next()); 
+console.log(y.next());
+```
+
+* Using the yield to return individual elements of an array
+```javascript
+function* yieldArrayElements() {
+    yield 1;
+    yield* [ 20, 30, 40 ];
+}
+let a = yieldArrayElements();
+console.log(a.next()); // { value: 1, done: false }
+console.log(a.next()); // { value: 20, done: false }
+console.log(a.next()); // { value: 30, done: false }
+console.log(a.next()); // { value: 40, done: false }
+```
+yield *表达式用于委派给另一个可迭代的对象或生成器。
 # Promises
 ## Promises
+一个promise 是你希望未来会返回一个值的对象,不是现在返回.
+一个promise 有三个状态:pending（进行中）、fulfilled（已成功）和rejected（已失败）
+* Pending
+* Fulfilled
+* Rejected
+一个promise从pending状态开始, 这个时候表示promise还没有完成, 以fulfilled (successful) or rejected (failed) 状态结束.
+### 创建promise:  the Promise constructor
+```javascript
+let completed = true;
+let learnJS = new Promise(function (resolve, reject) {
+    if (completed) {
+        resolve("I have completed learning JS.");
+    } else {
+        reject("I haven't completed learning JS yet.");
+    }
+});
+```
+Promise constructor 接收一个函数作为参数, 这个函数叫做executor. 按照规定, executor两个函数的名称: resolve() and reject().
+调用new Promise(executor)时,  executor自动被调用.
+为了看到promise的pending状态,可以在executor里面使用setTimeout()函数:
+```javascript
+let completed = true;
+let learnJS = new Promise(function (resolve, reject) {
+    setTimeout(() => {
+        if (completed) {
+            resolve("I have completed learning JS.");
+        } else {
+            reject("I haven't completed learning JS yet.");
+        }
+    }, 3 * 1000);
+});
+```
+如果promise达到了实现状态或拒绝状态，则promise得以resolved。一旦创建promise, 在resolved之前它都是pending状态.
+当promise resolved or rejected, 计划回调,可以使用Promise对象的方法:then(), catch(), and finally().
+### Consuming a Promise: then, catch, finally
+#### then方法
+then带有两个回调函数:
+```javascript
+promiseObject.then(onFulfilled, onRejected);
+```
+如果实现了promise，则会调用onFulfilled回调。 当promise被拒绝时，将调用onRejected回调。
+#### catch()方法
+当promise被拒绝计划执行一个回调,可以使用promise对象的catch()方法
+#### finally()方法
+无论promise是fullfilled还是rejected时, 都执行的一样的代码
 ## Promise Chaining
 Promise对象的实例方法（比如then(), catch(), or finally()）返回的是一个独立的promise对象，这个对象又可以再次调用
 promise的实例方法
+## Promise.all()
+语法:
+```
+Promise.all(iterable);
+```
+iterable 参数是一个promises 列表,作为可遍历对象传入Promise.all().
+当您要汇总来自多个异步操作的结果时，Promise.all（）很有用。
+### Resolved promises实例
+```javascript
+const p1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        console.log('The first promise has resolved');
+
+        resolve(10);
+    }, 1 * 1000);
+});
+const p2 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        console.log('The second promise has resolved');
+        resolve(20);
+    }, 2 * 1000);
+});
+const p3 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        console.log('The third promise has resolved');
+        resolve(30);
+    }, 3 * 1000);
+});
+```
+想要等这三个promise完成,使用Promise.all()方法:
+```javascript
+Promise.all([p1, p2, p3])
+    .then(results => {
+        const total = results.reduce((p, c) => p + c);
+        console.log(`Results: ${results}`);
+        console.log(`Total: ${total}`);
+    });
+```
+输出结果:
+```
+The first promise has resolved
+The second promise has resolved
+The third promise has resolved
+Results: 10,20,30
+Total: 60
+```
+### Rejected promises 实例
+```javascript
+const p1 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        console.log('The first promise has resolved');
+        resolve(10);
+    }, 1 * 1000);
+});
+const p2 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        console.log('The second promise has rejected');
+        reject('Failed');
+    }, 2 * 1000);
+});
+const p3 = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        console.log('The third promise has resolved');
+        resolve(30);
+    }, 3 * 1000);
+});
+Promise.all([p1, p2, p3])
+    .then(console.log) // never execute
+    .catch(console.log);
+```
+输出结果:
+```
+The first promise has resolved
+The second promise has rejected
+Failed
+The third promise has resolved
+```
+## Promise.race()
+Promise.race()静态方法,接收一个promises列表,返回一个promise,这个promise是这些promises中只要其中一个promise完成(fullfill)或者拒绝(reject)就返回值或者原因.
+语法:
+```
+Promise.race(iterable)
+```
+## Promise Error Handling
+# 集合
+## Map
+ES6之前,键值对应使用object, 一个键对应任何数据类型的值.
+使用object作为map有些副作用:
+* 一个对象有默认的prototype键
+* 对象的键必须是string或者symbol,不能使用对象作为键
+* 对象没有一个表示map大小的属性
+map语法:
+```javascript
+let map = new Map([iterable]);
+```
+iterable是包含键值对元素的可迭代的对象
+## Set
+ES6提供了一个名为Set的新类型，该类型存储任何类型的唯一值的集合。
+语法:
+```javascript
+let setObject = new Set();
+//也可以传一个可迭代的对象到set的构造函数中
+let setObject = new Set(iterableObject);
+```
+# ARRAY 扩展
+## Array.of()
