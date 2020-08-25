@@ -1018,3 +1018,9 @@ let setObject = new Set(iterableObject);
 ```
 # ARRAY 扩展
 ## Array.of()
+## Array.from()
+## Array find() 
+## findIndex()
+# OBJECT扩展
+## Object.assign()
+## Object.is()
