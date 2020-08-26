@@ -865,10 +865,10 @@ yield *表达式用于委派给另一个可迭代的对象或生成器。
 # Promises
 ## Promises
 一个promise 是你希望未来会返回一个值的对象,不是现在返回.
-一个promise 有三个状态:pending（进行中）、fulfilled（已成功）和rejected（已失败）
-* Pending
-* Fulfilled
-* Rejected
+一个promise 有三个状态:
+* Pending（进行中）
+* Fulfilled（已成功）
+* Rejected（已失败）
 一个promise从pending状态开始, 这个时候表示promise还没有完成, 以fulfilled (successful) or rejected (failed) 状态结束.
 ### 创建promise:  the Promise constructor
 ```javascript
@@ -1018,9 +1018,288 @@ let setObject = new Set(iterableObject);
 ```
 # ARRAY 扩展
 ## Array.of()
+ES5，Array构造函数传入数字表示数组的长度
+```javascript
+let numbers = new Array(2);
+console.log(numbers.length); // 2
+console.log(numbers[0]); // undefined
+```
+当传入的是一个值而不是数字时
+```javascript
+numbers = new Array("2");
+console.log(numbers.length); // 1
+console.log(numbers[0]); // "2"
+```
+Array.of()方法跟Array构造函数类似，除了对区别对待数字。
+Array.of()语法：
+```javascript
+Array.of(element0[, element1[, ...[, elementN]]])
+```
+像其传入数值：
+```javascript
+let numbers = Array.of(3);
+console.log(numbers.length); // 1
+console.log(numbers[0]); // 3
+```
+如果JavaScript所在的环境不支持Array.of()方法，可以这样：
+```javascript
+if (!Array.of) {
+    Array.of = function() {
+        return Array.prototype.slice.call(arguments);
+    };
+}
+```
 ## Array.from()
+从一个类似数组或者可迭代的对象中生成一个新的数组
+语法：
+```javascript
+Array.from(target [, mapFn[, thisArg]])
+```
+1）带thisAry参数的实例：
+```javascript
+let doubler = {
+    factor: 2,
+    double(x) {
+        return x * this.factor;
+    }
+}
+let scores = [5, 6, 7];
+let newScores = Array.from(scores, doubler.double, doubler);
+console.log(newScores);
+```
+mapping function 属于一个对象，这个实例doubler.double就是属于doubler，doubler表示doubler.double方法中的this值。
+2）从可迭代的对象中生成一个新的数组
+```javascript
+let even = {
+    *[Symbol.iterator]() {
+        for (let i = 0; i < 10; i += 2) {
+            yield i;
+        }
+    }
+};
+let evenNumbers = Array.from(even);
+console.log(evenNumbers);
+```
 ## Array find() 
+在 ES5中，找一个值用indexOf() or lastIndexOf()， 这种方法很有限，只能一次返回一个值。
+ES6中向Array.prototype中新加了一个具有查找功能的find()方法，语法：
+```javascript
+find(callback(element[, index[, array]])[, thisArg])
+```
 ## findIndex()
+用于返回第一个满足条件的元素，语法：
+```javascript
+findIndex(testFn(element[, index[, array]])[, thisArg])
+```
+实例：
+```javascript
+let ranks = [1, 5, 7, 8, 10, 7];
+let index = ranks.findIndex(
+    (rank, index) => rank === 7 && index > 2
+);
+console.log(index);
+```
 # OBJECT扩展
 ## Object.assign()
+语法：
+```
+Object.assign(target, ...sources)
+```
+Object.assign()将所有可枚举和自己的属性从源对象复制到目标对象。
+1)用于克隆对象
+```javascript
+let widget = {
+    color: 'red'
+};
+let clonedWidget = Object.assign({}, widget);
+console.log(clonedWidget);
+```
+2)用于合并对象
+```javascript
+let box = {
+    height: 10,
+    width: 20
+};
+let style = {
+    color: 'Red',
+    borderStyle: 'solid'
+};
+let styleBox = Object.assign({}, box, style);
+console.log(styleBox);
+```
 ## Object.is()
+Object.is()和===相似，区别是：
+* -0 and +0
+* NaN
+--------------------------------------------------
+# JavaScript Proxy（代理)
+JavaScript代理是包装另一个对象（目标）并拦截目标对象的基本操作的对象。
+## 创建Proxy对象
+```
+let proxy = new Proxy(target, handler);
+```
+* target 是被包装的对象，要被代理的对象
+* handler对该代理对象的各种操作行为处理，是一个包含控制target行为的方法的对象，此对象里面的方法叫做trap。
+##  proxy实例
+首先创建对象
+```javascript
+const user = {
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+}
+```
+第二步，创建handler
+```javascript
+const handler = {
+    get(target, property) {
+        console.log(`Property ${property} has been read.`);
+        return target[property];
+    }
+}
+```
+第三步，创建proxy
+```
+const proxyUser = new Proxy(user, handler);
+```
+proxyUser 对象使用 user存储数据，proxyUser能访问user对象的所有属性
+![](../images/JavaScript-Proxy.png)
+## Proxy Traps
+### get() trap
+```javascript
+const user = {
+    firstName: 'John',
+    lastName: 'Doe'
+}
+const handler = {
+    get(target, property) {
+        return property === 'fullName' ?
+            `${target.firstName} ${target.lastName}` :
+            target[property];
+    }
+};
+const proxyUser = new Proxy(user, handler);
+console.log(proxyUser.fullName);
+```
+### set() trap
+```JavaScript
+const user = {
+    firstName: 'John',
+    lastName: 'Doe',
+    age: 20
+}
+const handler = {
+    set(target, property, value) {
+        if (property === 'age') {
+            if (typeof value !== 'number') {
+                throw new Error('Age must be a number.');
+            }
+            if (value < 18) {
+                throw new Error('The user must be 18 or older.')
+            }
+        }
+        target[property] = value;
+    }
+};
+const proxyUser = new Proxy(user, handler);
+```
+设置age:
+```
+proxyUser.age = 'foo';
+proxyUser.age = '16';   
+```
+### apply() trap
+handler.apply()方法拦截函数的调用、call和apply操作。，
+语法：
+```javascript
+let proxy = new Proxy(target, {
+    apply: function(target, thisArg, args) {
+        //...
+    }
+});
+```
+实例：
+```javascript
+const user = {
+    firstName: 'John',
+    lastName: 'Doe'
+}
+const getFullName = function (user) {
+    return `${user.firstName} ${user.lastName}`;
+}
+const getFullNameProxy = new Proxy(getFullName, {
+    apply(target, thisArg, args) {
+        return target(...args).toUpperCase();
+    }
+});
+console.log(getFullNameProxy(user)); //
+```
+--------------------------------------------------
+# Reflection
+反射是程序在运行时操作变量，属性和对象方法的能力。
+ES6引入了一个名为Reflect的新全局对象，该全局对象允许您调用方法，构造对象，获取和设置属性，操纵和扩展属性。
+Reflect API很重要，因为它允许您开发能够处理动态代码的程序和框架。
+## Reflect API
+Reflect 不是构造者，不能与new操作符一起使用，而是作为方法被调用，Reflect 对象所有的方法都是静态的。
+### 创建对象：Reflect.construct()
+Reflect.construct()方法行为类似于new操作符
+```javascript
+Reflect.construct(target, args [, newTarget])
+```
+Reflect.construct()返回target的实例,如果newTarget 参数配置了就返回newTarget 的实例,
+以类似数组的对象args作为target构造函数的参数初始化返回的对象.
+```javascript
+class Person {
+    constructor(firstName, lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+    get fullName() {
+        return `${this.firstName} ${this.lastName}`;
+    }
+};
+let args = ['John', 'Doe'];
+let john = Reflect.construct(
+    Person,
+    args
+);
+console.log(john instanceof Person);
+console.log(john.fullName); // John Doe
+```
+### 调用函数:Reflect.apply()
+ES6之前,通过配置this值和arguments调用Function.prototype.apply()函数
+```javascript
+let result = Function.prototype.apply.call(Math.max, Math, [10, 20, 30]);
+console.log(result);
+```
+Reflect.apply()提供和Function.prototype.apply()同样的特性
+```javascript
+let result = Reflect.apply(Math.max, Math, [10, 20, 30]);
+console.log(result);
+```
+语法:
+```
+Reflect.apply(target, thisArg, args)
+```
+### 配置属性:Reflect.defineProperty()
+与Object.defineProperty()类似,但返回的是布尔值.
+语法:
+```
+Reflect.defineProperty(target, propertyName, propertyDescriptor)
+```
+实例:
+```javascript
+let person = {
+    name: 'John Doe'
+};
+if (Reflect.defineProperty(person, 'age', {
+        writable: true,
+        configurable: true,
+        enumerable: false,
+        value: 25,
+    })) {
+    console.log(person.age);
+} else {
+    console.log('Cannot define the age property on the person object.');
+}
+```
