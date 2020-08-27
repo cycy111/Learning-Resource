@@ -17,11 +17,11 @@ args存储的值为:
 `[3,'A','B','C']`
 --------------------------------------------------
 ## (扩展运算符)Spread operator 
-扩展运算符(spread)是三个点(...)作用:将一个字面量对象(比如an array,a  map, or a set.)转为用逗号分隔的其中的元素。
+扩展运算符(spread)是三个点(...) 作用:将可迭代对象(比如an array,a  map, or a set.)用逗号分隔展开其中的元素。
 ### Spread operator 和Rest parameter区别
 * Spread operator展开所有对象中的元素
 * Rest parameter打包元素到数组中
-```
+```javascript
 const odd = [1,3,5];
 const combined = [...odd, 2,4,6];
 console.log(combined);
