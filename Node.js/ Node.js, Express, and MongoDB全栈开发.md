@@ -42,7 +42,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(process.env.PORT || 3000);
 ```
-在命令运行node server启动服务器。
+在命令运行**node server**启动服务器。
 为Node开发更简单，也可以安装nodemon
 ```
 npm install -g nodemon
@@ -54,6 +54,8 @@ npm install -g nodemon
 在backend下添加EXpress：
 ```
 npm install --save express
+or
+yarn add express
 ```
 创建app.js文件，在其中包含Express app:
 ```
@@ -106,7 +108,7 @@ app.use((req, res, next) => {
 
 module.exports = app;
 ```
-这个Express app有四个middleware，显示了Express app中middleware怎么工作。
+这个Express app有四个middleware，显示了Express app中middleware是怎么工作。
 改进server.js：
 ```javascript
 const http = require('http');
@@ -200,6 +202,8 @@ CORS 代表 Cross Origin Resource Sharing.该标准允许我们放宽默认的�
 从请求中提取JSON对象-我们将需要body-parser包，安装生产依赖项：
 ```
 npm install --save body-parser
+or
+yarn add body-parser
 ```
 将其引入app.js:
 ```javascript
@@ -214,3 +218,94 @@ app.post('/api/stuff', (req, res, next) => {
   });
 });
 ```
+# 配置数据库
+## 设置MongoDB Atlas
+注册MongoDB账号，新建新用户，配置数据库访问白名单。
+## 安装Mongoose 包，在backend下：
+```
+npm install --save mongoose
+or
+yarn add mongoose -S
+```
+安装完后，在app.js中引入包：
+```
+const mongoose = require('mongoose');
+```
+在app实例下面添如下代码：
+```javascript
+mongoose.connect('mongodb+srv://will:<PASSWORD>@cluster0-pme76.mongodb.net/test?retryWrites=true')
+  .then(() => {
+    console.log('Successfully connected to MongoDB Atlas!');
+  })
+  .catch((error) => {
+    console.log('Unable to connect to MongoDB Atlas!');
+    console.error(error);
+  });
+```
+# 存取数据
+## 存数据
+在app.js中引入mongoose model:
+```
+const Thing = require('./models/thing');
+```
+修改post路由中的逻辑：
+```javascript
+app.post('/api/stuff', (req, res, next) => {
+  const thing = new Thing({
+    title: req.body.title,
+    description: req.body.description,
+    imageUrl: req.body.imageUrl,
+    price: req.body.price,
+    userId: req.body.userId
+  });
+  thing.save().then(
+    () => {
+      res.status(201).json({
+        message: 'Post saved successfully!'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+});
+```
+## 取数据
+修改GET路由中的逻辑，获取Things中所有的数据：
+```javascript
+app.use('/api/stuff', (req, res, next) => {
+  Thing.find().then(
+    (things) => {
+      res.status(200).json(things);
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+});
+```
+在post路由后面添加一个新的GET路由，获取指定的一个thing:
+```javascript
+app.get('/api/stuff/:id', (req, res, next) => {
+  Thing.findOne({
+    _id: req.params.id
+  }).then(
+    (thing) => {
+      res.status(200).json(thing);
+    }
+  ).catch(
+    (error) => {
+      res.status(404).json({
+        error: error
+      });
+    }
+  );
+});
+```
+## 删除更新操作
