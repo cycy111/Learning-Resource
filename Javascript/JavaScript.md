@@ -1,4 +1,4 @@
-```
+```JavaScript
 const person = {
     firstName: 'John',
     lastName: 'Doe'
@@ -21,7 +21,7 @@ let result = greet.call(person, Hello', 'How are you?');
 
 ## 使用apply()方法附加一个数组到另外一个数组
 
-```
+```JavaScript
 let arr = [1, 2, 3];
 let numbers = [4, 5, 6];
 
@@ -36,7 +36,9 @@ console.log(arr);
 
 ##  正则表达式
 {1,} 相当于(简写) +
+
 {0,1} 相当于 ?
+
 {0,} 相当于 *
 - Whole numbers:/^\d+$/
 - Decimal numbers:/^\d*.\d+$/
