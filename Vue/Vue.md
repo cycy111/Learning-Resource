@@ -1,3 +1,51 @@
+# Vue Cli创建项目
+## 背景
+构建工具（Gulp, Webpack等）和命令行的出现，改进了以前在前端开发中很多东西都需要手动配置，比如根据文件内容来包含CSS，为了缩小加载时间最小化JavaScript文件的大小。
+由于这些构建工具存在的复杂性，企业级应用程序必须使用命令行界面（CLI）.
+## 安装Vue Cli
+```javascript
+npm install -g @vue/cli
+// OR
+yarn global add @vue/cli
+```
+检查是否安装成功：
+```
+vue --version
+```
+## 创建项目
+开始创建项目：
+<img src="../images/vue/createvueprj.png">
+构建完成的项目结构目录：
+<img src="../images/vue/filestruc.jpg">
+* node_modules- 包含能在应用中实现很多东西的所有依赖，它不需要提交到代码库，是由npm来管理的。
+* public- 此文件夹包含favicon.ico和index.html,此处包含的所有内容将直接通过根网址提供。
+* index.html将用于生成应用程序的其余部分。
+* src - 大部分代码将在这里进行
+* gitignore - 包含不被提交到仓库的文件或目录列表，像常见的/dist目录（每一次项目构建都会自动生成），node_modules目录（每一次npm install  or  yarn install都会自动创建）。
+* package.json- 项目的基本配置。包含像项目名称，版本的元数据。包含重要信息，例如可以运行（即serve和build）脚本以及项目需要哪些依赖项。
+	+ Serve- 该脚本用于启动本地开发环境
+	+ Build- 该脚本负责创建最终代码工件的脚本，该工件将交付给客户或用户。
+
+src目录：
+* Assets - 您可以在此目录中放置诸如图像和可能需要参考的其他必需资产之类的内容
+* Components - 放项目用到的组件
+* main.js - 这是设置高级Vue配置选项的地方。
+启动项目：
+```
+npm run serve
+or
+yarn run serve
+```
+# Vue Router管理导航
+使用 Vue CLI工具给项目加vue router
+```
+vue add router
+```
+添加完成后会新产生一个文件router/index.js. main.js也会有些变化。
+Vue Router使用两个组件：
+* <router-view></router-view> - 定义我们在每条路由中定义的组件将出现在页面上的区域。
+
+* <router-link></router-link> -
 # Vuex
 ## 用Vuex创建集中数据存储
 Vuex是Vue.js应用程序的状态管理模式和库。 换句话说，Vuex的唯一目的是帮助创建集中化的数据存储，该存储将作为应用程序的SSOT( single source of truth )。
@@ -19,6 +67,7 @@ new Vue({
 }).$mount('#app')
 ```
 这里插件引入了store,它作为一个新的配置在Vue实例中。
+
 与在Vue实例中配置data属性类似，Vuex在src/store.js这样配置store：
 ```javascript
 import Vue from 'vue'
@@ -97,7 +146,9 @@ export default {
 ```
 ## Getter
 store.js初始化缺少的一个重要属性：Getter， Vuex的getters属性类似于vue对象中的计算属性。
+
 <img src="../images/getter.png"/>
+
 我们来定义一个格式化的日期：
 ```javascript
 export default new Vuex.Store({

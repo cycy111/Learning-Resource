@@ -31,6 +31,7 @@ yarn global add @angular/cli
  配置完前端应用后，在子s将包含目录backend将配置后端。
 # 启动Node server
 Node是运行时，它使我们可以用JavaScript编写所有服务器端任务，例如业务逻辑，数据持久性和安全性。它还添加了普通浏览器JavaScript不具备的功能，例如，使您可以访问本地文件系统。
+Express是一个位于Node之上的框架，使Node服务器的构建和维护更加容易
 ## 初始化项目
 初始化backend下的项目，在命令行运行npm init，server.js为入口。server.js将包含Node Server.在其中添加如下代码：
 ```javascript
