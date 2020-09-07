@@ -36,24 +36,242 @@ npm run serve
 or
 yarn run serve
 ```
+
 # Vue Router管理导航
+## 安装
 使用 Vue CLI工具给项目加vue router
 ```
 vue add router
 ```
 添加完成后会新产生一个文件router/index.js. main.js也会有些变化。
-Vue Router使用两个组件：
-* <router-view></router-view> - 定义我们在每条路由中定义的组件将出现在页面上的区域。
 
-* <router-link></router-link> -
+router/index.js
+
+```javascript
+import Vue from 'vue' 
+import Router from 'vue-router' 
+import Home from './views/Home.vue'
+
+Vue.use(Router)
+
+export default new Router({
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: Home
+    },
+    {
+      path: '/about',
+      name: 'about',
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
+    }
+  ]
+})
+```
+Vue app中的routers是通过一个包含对象的数据来定义的，每个对象包含三个关键的属性：
+* Path - 哪个URL应该与组件匹配
+* Name - 用于标记和测试
+* Component - 匹配路径时应显示的组件
+
+Vue Router使用两个组件：
+* &lt;router-view&gt;&lt;/router-view&gt; - 定义我们在每条路由中定义的组件将出现在页面上的区域。
+* &lt;router-link&gt;&lt;/router-link&gt; - 类似于HTML中的锚点标签，它比标准锚标记更可取，因为它具有内置功能，例如防止自动重新加载页面。
+
+这两个组件构成了在我们的组件中使用Vue Router的基础，以帮助简化Vue应用程序内的导航。
+## 动态匹配路由
+希望菜单项有单独的页面，但只想使用单个ItemDetail.vue页面来显示菜单项的详细信息； 您将需要路由来动态传递这些信息。
+Vue路由器通过允许动态路由匹配来解决此问题。
+配置路由如下：
+```javascript
+const router = new VueRouter({
+    routes: [
+        // dynamic segments start with a colon
+        { path: '/item/:name', component: ItemDetail }
+    ]
+})
+```
+动态变量（可能会在URL中更改）由冒号标记。
+这样，组件ItemDetail便可以下拉参数来使用
+```javascript
+<div>Item: {{ $route.params.name }}</div>
+```
+
+# 组件生命周期
+在组件的生命周期中，需要注意三个主要的里程碑：
+1. Create - 这表示构建组件的时间段。
+2. Mount - 这表示组件将在页面上呈现的时间。
+3. Destroy - 这表示要从页面中删除组件的时间。
+
+<img src="../imgages/vue/liftcyle.jpg">
+
+为了帮助解决计时问题，Vue等框架公开了lifecycle hooks生命周期挂钩
+1. beforeCreate
+2. created
+3. created
+4. mounted
+5. beforeDestroy
+6. destroyed
+从列表中可以看到，每个里程碑都带有一对生命周期挂钩，使我们可以在里程碑之前和之后执行代码。
+
+## 使用Lifecycle Hooks
+与定义data或者computed类似，他们只是另外一种属性，区别只是他们不是简单的字符串，而是函数
+```javascript
+<template>
+    <h1>I'm a new component!</h1>
+</template>
+
+<script>
+    export default {
+        data: { msg: 'Hello!' },
+        beforeCreate() { console.log('I have not been created yet!') },
+        created() { console.log('I have just been created!') },
+        beforeMount() { console.log('I am about to be mounted to the DOM!') },
+        mounted() { console.log('I am mounted to the DOM!') },
+        beforeDestroy() { console.log('I am about to be removed from the DOM!') },
+        destroyed() { console.log('I no longer exist...') }
+    }
+</script>
+```
+
+# 管理样式
+## 配置预处理器
+有一种更简便的方法来利用预处理器的功能，同时又使它们与组件耦合
+假设您已使用正确的预处理器配置了Vue CLI应用程序，那么就可以使用所需的预处理器将lang prop赋予样式块。
+
+```javascript
+<template>
+
+</template>
+
+<script>
+
+</script>
+
+<style lang="scss">
+.button {
+    &.is-small { ... }
+    &.is-large { ... }
+}
+</style>
+```
+## 管理样式
+* Global Styling - style块种无另外的配置，样式是全局的
+* Scoped Styles - style块中有scoped属性，样式只会应用在当前组件的元素.
+就其尝试方式而言，它将自定义数据属性附加到CSS类和HTML元素以使样式保持范围。这通过减小范围来最小化级联效果。
+Before
+
+```html
+<style scoped>
+.example {
+    color: red;
+}
+</style>
+
+<template>
+    <div class="example">hi</div>
+</template>
+```
+
+Afer
+
+```html
+<style>
+.example[data-v-f3f3eg9] {
+    color: red;
+}
+</style>
+
+<template>
+    <div class="example" data-v-f3f3eg9>hi</div>
+</template>
+```
+对于大多数样式而言，这通常不是什么大问题，但是当类似.button之类的东西与第三方CSS结合使用时，可能会出现问题。
+* CSS Modules - CSS模块是用于模块化和组合CSS的流行系统
+```httml
+<style module>
+.red {
+    color: red;
+}
+.bold {
+    font-weight: bold;
+}
+</style>
+```
+和scoped styles一样，在style块中加 module属性，它将会附加一个随机的希哈值给样式
+```html
+<style>
+.red-vj29193 {
+    color: red;
+}
+.bold-vj2914 {
+    font-weight: bold;
+}
+</style>
+```
+
+使用CSS模块需要在v-bind：class中用$ style附加CSS类。
+
+```html
+<template>
+	<h1 :class="$style.red">My Red Title</h1>
+</template>
+
+<style module>
+.red {
+  color: red;
+}
+</style>
+```
+## 管理样式策略
+保持样式与组件的耦合
+
+不要将所有样式都写在一个全局样式文件中，如果不是这些样式都重复用到。如果放到一个样式文件中，即使用户不会用的到这些样式也会一起下载所有样式数据。
+而且，使用遗留代码会给生活带来困难，因为在不了解副作用的情况下很难进行重构。
+```css
+.button {
+    background-color: blue;
+    color: white;
+    border-radius: 10px;
+}
+```
+另一方面，如果您使用Vue管理我们的样式：
+```javascript
+<template>
+    <button class="button">{{ text }}</button>
+</template>
+
+<script>
+export default {
+    name: 'CustomButton',
+    props: ['text']
+}
+</script>
+
+<style>
+    .button {
+        background-color: blue;
+        color: white;
+        border-radius: 10px;
+    }
+</style>
+```
+
 # Vuex
 ## 用Vuex创建集中数据存储
+
 Vuex是Vue.js应用程序的状态管理模式和库。 换句话说，Vuex的唯一目的是帮助创建集中化的数据存储，该存储将作为应用程序的SSOT( single source of truth )。
 使用Vue CLI tool 安装Vuex
-```javascript
+
+```
 vue add vuex
 ```
+
 安装完成后， 会在应用对src/main.js文件产生变化：
+
 ```javascript
 import Vue from 'vue'
 import App from './App.vue'
@@ -69,6 +287,7 @@ new Vue({
 这里插件引入了store,它作为一个新的配置在Vue实例中。
 
 与在Vue实例中配置data属性类似，Vuex在src/store.js这样配置store：
+
 ```javascript
 import Vue from 'vue'
 import Vuex from 'vuex'
