@@ -260,6 +260,66 @@ export default {
 </style>
 ```
 
+# 将事件发送到父组件
+常见的事件包括点击,提交表单,改变浏览器大小,按键盘, 发生这些操作时，将发出事件，因此您可以使用事件处理程序之类的技术进行相应的响应。
+事件也会自动传递给事件对象，该对象包含额外的功能或有关事件的信息。 例如，当用户按下键盘上的一个键时，事件对象可以让您知道按下了哪个键。
+## 自定义事件
+使用v-on指令能够很容易的监听常见的事件并触发你想要执行的函数. 使用Vue内置的$emit函数能自定义事件. $emit函数有两个参数:
+* 事件名称
+* 可选的有效负载(payload)，可用于将数据传递到事件侦听器
+
+**src/ChildComponent.vue**
+```javascript
+<template>
+    <button @click="emitCustomEvent">Emit Event</button>
+</template>
+
+<script>
+export default {
+    methods: {
+        emitCustomEvent() {
+            this.$emit('custom-event-name', { message: 'My custom message' })
+        }
+    }
+}
+</script>
+```
+## 监听并响应发送过来的事件
+
+发出事件后，使用子组件的父组件可以通过v-on指令侦听该事件。
+ 1. 在发出事件的组件上添加带有自定义事件名称的v-on侦听器。
+ 2. 给它分配一个方法，该方法将接收有效载荷(payload)作为第一个参数（如果存在）。
+
+**src/ParentComponent.vue**
+```javascript
+<template>
+    <div>
+        <p>{{ message }}</p>
+        <!-- Listen for custom event here and assign a method -->
+        <ChildComponent @custom-event-name="setMessage" />
+    </div>
+</template>
+
+<script>
+import ChildComponent from './ChildComponent'
+
+export default {
+    components: { ChildComponent },
+    data () {
+        return {
+            message: 'Hi'
+        }
+    },
+    methods: {
+        // Define method that will use the payload to update the data property
+        setMessage(payload) {
+            this.message = payload.message
+        }
+    }
+}
+</script>
+```
+
 # Vuex
 ## 用Vuex创建集中数据存储
 
