@@ -319,6 +319,8 @@ export default {
 }
 </script>
 ```
+$event.target 指发送事件的元素；
+Vue提供了一个$ listeners属性，其中包含在组件上使用的侦听器对象。
 
 # Vuex
 ## 用Vuex创建集中数据存储
