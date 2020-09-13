@@ -486,7 +486,7 @@ export default new Vuex.Store({
     }
 })
 ```
-mutations包含所有属性负责更改state状态的对象.
+mutations它包含负责更改state的所有属性的对象.
 ####  定义Mutation
 ```javascript
 export default new Vuex.Store({
@@ -558,3 +558,99 @@ export default new Vuex.Store({
 })
 ```
 我们需要处理一些逻辑来决定触发每个mutation
+```javascript
+export default new Vuex.Store({
+    state: {
+        count: 0
+    },
+    mutations: {
+        INCREASE_COUNT(state, amount = 1) {
+            state.count += Number(amount)
+        },
+        DECREASE_COUNT(state, amount = 1) {
+            state.count -= Number(amount)
+        }
+    },
+    actions: {
+        updateCount(context, amount) {
+            if (amount >= 0) {
+                context.commit('INCREASE_COUNT', amount)
+            } else {
+                context.commit('DECREASE_COUNT', amount)
+            }
+        }
+    }
+})
+```
+此外，由于context参数可用于访问Vuex存储的许多不同属性，因此在代码中将看到的一种常见技术是对象解构。
+```javascript
+export default new Vuex.Store({
+    state: {
+        count: 0
+    },
+    mutations: {
+        INCREASE_COUNT(state, amount = 1) {
+            state.count += Number(amount)
+        },
+        DECREASE_COUNT(state, amount = 1) {
+            state.count -= Number(amount)
+        }
+    },
+    actions: {
+        updateCount({ commit }, amount) {
+            if (amount >= 0) {
+                commit('INCREASE_COUNT', amount)
+            } else {
+                commit('DECREASE_COUNT', amount)
+            }
+        }
+    }
+})
+```
+#### 在组件中使用Action
+调用mutation有一个专业术语committing，action也有一个--dispatching. 
+```javascript
+<template>
+    <div>
+        <p>{{ count }}</p>
+        <button @click="sendUpdateCountAction">Increment</button>
+    </div>
+</template>
+
+<script>
+import { mapState } from 'vuex'
+
+export default {
+    computed: {
+        ...mapState(['count'])
+    },
+    methods: {
+        sendUpdateCountAction() {
+            this.$store.dispatch('updateCount')
+        }
+    }
+}
+</script>
+```
+与mapState  and  mapGetters的使用类似，action使用mapActions
+```javascript
+<template>
+    <div>
+        <p>{{ count }}</p>
+        <button @click="updateCount">Increment</button>
+    </div>
+</template>
+ 
+<script>
+import { mapState, mapActions } from 'vuex'
+ 
+export default {
+    computed: {
+        ...mapState(['count'])
+    },
+    methods: {
+        ...mapActions(['updateCount'])
+    }
+}
+</script>
+```
