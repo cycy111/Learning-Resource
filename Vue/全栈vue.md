@@ -68,3 +68,146 @@ vue的核心思想是一个驱动的理念
 典型实例：事件总线
 通过在Vue原型上添加一个Vue实例作为事件总线，实现组件间通信
 Vue.prototype.$bus=new Vue()
+## 插件
+vue.js实现一个install方法，这个方法的第一个参数是Vue构造器，第二个参数是一个可选的选项参数
+# 工程化开发
+## vue cli
+使用vue serve和vue build命令对于单个*.vue文件进行快速原型开发。
+### 安装@vue/cli-service-global扩展
+
+```javascript
+npm install -g @vue/cli-service-global
+```
+### vue serve
+启动一个服务并允许原型
+```javascript
+vue serve hello.vue
+```
+### 创建项目
+vue create
+### 项目目录结构
+默认情况，在src下写程序，\src\components是程序的通用组件，app.vue是整个程序的入口
+main.js是程序的入口文件，所有配置文件在package.json做组织。
+项目中的public目录将来会作为开发服务器的静态路径，这里面素材webpack是不会处理的。
+### 插件
+vue cli一套基于插件的架构
+### 静态地址处理
+如果应用没有部署在域名根目录下，需要为URL配置publicPath前缀
+```javascript
+// vue.config.js
+module.exports = {
+publicPath: process.env.NODE_ENV === 'production'
+? '/cart/'
+: '/'
+}
+```
+### Scoped css
+当 <style> 标签有 scoped 属性时，它的 CSS 只作用于当前组件中的元素。
+```javascript
+<style scoped>
+.red {
+color: red;
+}
+</style>
+```
+其原理是通过使用 PostCSS 来实现以下转换：
+```javascript
+<template>
+<div class="red" data-v-f3f3eg9>hi</div>
+</template>
+<style>
+.red[data-v-f3f3eg9] {
+color: red;
+}
+</style>
+```
+深度作用选择器：使用 >>> 操作符可以使 scoped 样式中的一个选择器能够作用得“更深”.
+Sass 之类的预处理器无法正确解析 >>> 。这种情况下你可以使用 /deep/ 或 ::v-deep 操作符
+取而代之.
+### CSS Module
+用于模块化和组合css的系统
+添加module
+```javascript
+<style module lang="scss">
+.red {
+color: #f00;
+}
+.bold {
+font-weight: bold;
+}
+</style>
+```
+模板中通过$style.xx访问
+```javascript
+<a :class="$style.red">awesome-vue</a>
+<a :class="{[$style.red]:isRed}">awesome-vue</a>
+<a :class="[$style.red, $style.bold]">awesome-vue</a>
+```### 数据访问相关
+数据模拟
+使用开发服务器配置before选项，可以编写接口，提供模拟数据
+```javascript
+devServer:{
+	before(app) {
+		app.get('/api/courses', (req, res) => {
+			res.json([{ name: 'web全栈', price: 8999 }, { name: 'web高级', price:
+			8999 }])
+		})
+	}
+}
+```
+调用
+```javascript
+import axios from 'axios'
+export function getCourses() {
+	return axios.get('/api/courses').then(res => res.data)
+}
+```
+设置开发服务器代理选项可以有效避免调用接口时出现跨域的情况
+```javascript
+devServer: {
+	proxy: 'http://localhost:3000'
+}
+```
+测试接口
+```javascript
+// 需要安装express：npm i express
+const express = require('express')
+const app = express()
+app.get('/api/courses', (req, res) => {
+	res.json([{ name: 'web全栈', price: 8999 }, { name: 'web高级', price: 8999 }])
+})
+app.listen(3000)
+```
+### 编程导航
+router.push(location, onComplete?, onAbort?)
+### 路由守卫
+#### 全局守卫
+#### 路由独享守卫
+#### 组件内守卫
+### 动态路由
+通过router.addRoutes(routes)方式动态添加路由
+```javascript
+// Login.vue用户登录成功后动态添加/about
+login() {
+window.isLogin = true;
+this.$router.addRoutes([
+{
+path: "/about", //...
+}
+]);
+const redirect = this.$route.query.redirect || "/";
+this.$router.push(redirect);
+}
+```
+### 路由组件缓存
+利用keepalive做组件缓存，保留组件状态，提高执行效率
+```javascript
+//缓存about组件
+<keep-alive include="about">
+<router-view></router-view>
+</keep-alive>
+```
+* 使用include或exclude时要给组件设置name
+* 两个特别的生命周期：activated、deactivated
+
+## vue ui

@@ -404,7 +404,7 @@ export default {
 }
 </script>
 ```
-...扩展符是通常的做法，是允许定义其他计算的属性。
+...属性展开运算符是通常的做法，是允许定义其他计算的属性。
 为避免名称冲突,可以使用将数组参数换成对象参数给 Vuex state变量指定一个不一样的名称：
 ```javascript
 <template>
@@ -512,7 +512,8 @@ export default new Vuex.Store({
 this.$store.commit('INCREMENT_COUNT', 2)
 ```
 当一个mutation提交后，修改便会立刻产生，换句话说就是Vuex mutations 是同步的，这样就不能从API中取数据。
-### Actions
+
+
 Actions是我们用来协调突变背后逻辑的主要工具。Actions 类似于Vue实例中的methods属性：
 <img src="../images/actions.png"/>
 
