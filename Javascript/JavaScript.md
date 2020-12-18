@@ -32,9 +32,30 @@ console.log(arr);
 
 --------------------------------------------------
 ```
+
 ```
 
+Boolean和boolean
+
+boolean是带有true和false两个值的原始类型。JavaScript也提供全局的Boolean()方法，用来将其他类型的值转换成boolean.
+
+```
+let a = Boolean('Hi');
+console.log(a); // true
+console.log(typeof(a)); // boolean
+```
+
+Boolean也是boolean原始类型的包装对象，可以向Boolean构造函数传递true或者false
+
+```
+let b = new Boolean(false);
+console.log(b.valueOf()); // false
+```
+
+
+
 ##  正则表达式
+
 {1,} 相当于(简写) +
 
 {0,1} 相当于 ?
@@ -231,3 +252,40 @@ console.log(result);
 var add = (x, y) => x + y;
 ```
 也会出现和函数表达式同样的错.
+
+
+
+## Fetch API
+
+使用Javascript fetch api发生异步HTTP请求. Fetch API是一种现代接口，可让您从Web浏览器向服务器发出HTTP请求。
+
+### 发送请求
+
+fetch方法接收一个参数，它是请求资源的URL地址
+
+`let response = fetch(url);`
+
+fetch方法返回promise，能够使用then()和catch()方法处理
+
+```
+fetch(url)
+    .then(response => {
+        // handle the response
+    })
+    .catch(error => {
+        // handle the error
+    });
+```
+
+请求完成后，资源可用。 这时，promise将解析为Response对象。
+
+
+
+
+
+
+
+
+
+
+

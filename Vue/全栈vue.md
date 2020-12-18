@@ -141,8 +141,10 @@ font-weight: bold;
 ```javascript
 <a :class="$style.red">awesome-vue</a>
 <a :class="{[$style.red]:isRed}">awesome-vue</a>
-<a :class="[$style.red, $style.bold]">awesome-vue</a>
-```### 数据访问相关
+<a :class="[$style.red, $style.bold]">awesome-vue</a>
+
+```
+### 数据访问相关
 数据模拟
 使用开发服务器配置before选项，可以编写接口，提供模拟数据
 ```javascript
@@ -153,20 +155,23 @@ devServer:{
 			8999 }])
 		})
 	}
-}
+}
+
 ```
 调用
 ```javascript
 import axios from 'axios'
 export function getCourses() {
 	return axios.get('/api/courses').then(res => res.data)
-}
+}
+
 ```
 设置开发服务器代理选项可以有效避免调用接口时出现跨域的情况
 ```javascript
 devServer: {
 	proxy: 'http://localhost:3000'
-}
+}
+
 ```
 测试接口
 ```javascript
@@ -176,7 +181,8 @@ const app = express()
 app.get('/api/courses', (req, res) => {
 	res.json([{ name: 'web全栈', price: 8999 }, { name: 'web高级', price: 8999 }])
 })
-app.listen(3000)
+app.listen(3000)
+
 ```
 ### 编程导航
 router.push(location, onComplete?, onAbort?)
@@ -197,7 +203,8 @@ path: "/about", //...
 ]);
 const redirect = this.$route.query.redirect || "/";
 this.$router.push(redirect);
-}
+}
+
 ```
 ### 路由组件缓存
 利用keepalive做组件缓存，保留组件状态，提高执行效率
@@ -205,9 +212,82 @@ this.$router.push(redirect);
 //缓存about组件
 <keep-alive include="about">
 <router-view></router-view>
-</keep-alive>
+</keep-alive>
+
 ```
 * 使用include或exclude时要给组件设置name
 * 两个特别的生命周期：activated、deactivated
-
+### 派生状态
+可以使用getters从store的state中派生出一些状态
+### vuex
+如果没有异步操作，直接mutation就可以，异步的话，就需要使用action
 ## vue ui
+## Vue全家桶原理分析
+插件其实就是一个对象，里面实现install方法  {install()}
+纯运行时版本，不存在编译器，描述组件不能用template，只能用render函数
+在vs code安装code runer 可以快捷调试js
+
+# 手撸Vue
+
+## 实现数组响应式
+
+1. 找到数组原型
+2. 覆盖那些能够修改数组的更新方法，使其能够通知更新
+3. 将得到的新原型设置到数组实例原型上
+
+# 源码剖析vue
+## 问题
+* __dirname，指当前模块的目录名
+* path.resolve([…paths])里的每个参数都类似在当前目录执行一个cd操作，从左到右执行，返回的是最后的当前目录
+path.resolve('/foo/bar', '/tmp/file/');相当于：
+```javascript
+cd /foo/bar //此时路径为 /foo/bar
+cd /tmp/file/ //此时路径为 /tmp/file
+```
+
+创建vue实例时，如果有el选项，不用$mount方法也是可以在页面渲染的，但如果只有template选项就需要$mount挂载方法了。
+
+vue实例化过程中，render优先级是最高的，render>template>el
+
+## 初始化流程
+
+src\platforms\web\entry-runtime-with-compiler.js
+
+入口文件，覆盖$mount: 处理template和el
+
+src\platforms\web\runtime\index.js
+
+定义$mount
+
+src\core\global-api\index.js
+
+定义全局api
+
+src\core\instance\index.js
+
+定义构造函数
+
+src\core\instance\init.js
+
+初始化方法_init定义的地方
+
+```
+initLifecycle(vm)
+initEvents(vm)
+initRender(vm)
+callHook(vm, 'beforeCreate')
+initInjections(vm) // resolve injections before data/props
+initState(vm)
+initProvide(vm) // resolve provide after data/props
+callHook(vm, 'created')
+```
+
+
+
+src\core\instance\state.js
+
+initdata, 获取data，设置代理，启动响应式
+
+src\core\observer\index.js
+
+vue 2.0后，一个组件只有一个watcher
