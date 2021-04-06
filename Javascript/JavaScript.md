@@ -54,6 +54,44 @@ console.log(b.valueOf()); // false
 
 
 
+## 语法
+
+JavaScript 中的变量，函数名，类名和操作符都是区分大小写的。
+
+### 标识符
+
+第一个字符必须是字母（a-z或A-Z），下划线（_）或美元符号（$）。
+
+其他字符可以是字母（a-z，A-Z），数字（0-9），下划线（_）和美元符号（$）。
+
+最好使用驼峰式大小写作为标识符
+
+### 语句
+
+建议语句末尾加分号。原因是分号将使您的代码更具可读性，并帮助您避免可能遇到的许多问题。另外，在将JavaScript代码部署到生产环境之前，可能需要对其进行组合和压缩，以消除多余的空白以节省带宽。 没有分号，您将有语法错误。
+
+### 关键字和保留字
+
+不能使用关键字和保留字作为标识符。
+
+## 数据类型
+
+JavaScript有六种原始数据类型：
+
+1. [`null`](https://www.javascripttutorial.net/javascript-data-types/#null)
+
+2. [`undefined`](https://www.javascripttutorial.net/javascript-data-types/#undefined)
+
+3. [`boolean`](https://www.javascripttutorial.net/javascript-data-types/#boolean)
+
+4. [`number`](https://www.javascripttutorial.net/javascript-data-types/#number)
+
+5. [`string`](https://www.javascripttutorial.net/javascript-data-types/#string)
+
+6. [`symbol`](https://www.javascripttutorial.net/javascript-data-types/#symbol) – available only from ES6
+
+   还有一种称为对象的复杂数据类型。
+
 ##  正则表达式
 
 {1,} 相当于(简写) +
@@ -73,38 +111,7 @@ console.log(b.valueOf()); // false
 |{ n ,}		|Match at least n times.	|
 |{ n , m }	|Match from n to m times.	|
 
-## JavaScript Call Stack
-JavaScript引擎使用调用堆栈(call stack)来管理执行上下文(execution contexts)：全局执行上下文(Global Execution Context)和函数执行上下文(Function Execution Contexts)。
 
-调用堆栈基于LIFO(后进先出)原则. 
-
-当您执行脚本时，JavaScript引擎会创建一个全局执行上下文并将其推入调用堆栈的顶部。每当调用一个函数时，JavaScript引擎都会为该函数创建一个函数执行上下文，将其推入调用堆栈的顶部，然后开始执行该函数。
-
-调用堆栈的大小固定，具体取决于Web浏览器或Node.js主机环境的实现。
-
-### JavaScript call stack example
-```
-function add(a, b) {
-    return a + b;
-}
-
-function average(a, b) {
-    return add(a, b) / 2;
-}
-
-let x = average(10, 20);
-```
-下图说明了所有步骤中调用堆栈的总体状态：
-![](/images/JavaScript-Call-Stack.png)
-<img src="../images/JavaScript-Call-Stack.png">
-
-## Asynchronous JavaScript
-JavaScript调用堆栈可帮助跟踪执行上下文或函数调用。
-JavaScript是单线程编程语言。 JavaScript引擎只有一个调用堆栈，因此一次只能执行一项操作.
-
-执行脚本时，JavaScript引擎逐行从上至下执行代码。 换句话说，它是同步的。
-
-异步与同步相反，这意味着同时发生。 JavaScript可以承载异步任务，例如回调，promise和async / await.
 
 ## JavaScript 执行上下文 (Execution Context)
 当JavaScript引擎执行脚本时，它会创建执行上下文。 每个执行上下文都有两个阶段：创建阶段和执行阶段。
@@ -139,14 +146,60 @@ the execution phase of the function execution context:
 
 <img src="../images/javascript-execution-context-function-execution-context-in-execution-phase.png">
 
-## JavaScript Event Loop
-### JavaScript single-threaded model
+## JavaScript调用堆栈
+
+当执行脚本时，JavaScript引擎创建一个Global Execution Context ，将其推入调用 堆栈的顶部。当调用一个函数时，JavaScript引擎为函数创建一个Function Execution Context，将其推入调用 堆栈的顶部,然后开始执行函数。如果函数调用另外一个函数，JavaScript引擎会为其创建一个新的Function Execution Context，将其推入调用 堆栈的顶部.
+
+JavaScript引擎使用调用堆栈(call stack)来管理执行上下文(execution contexts)：全局执行上下文(Global Execution Context)和函数执行上下文(Function Execution Contexts)。
+
+调用堆栈基于LIFO(后进先出)原则. 
+
+当您执行脚本时，JavaScript引擎会创建一个全局执行上下文并将其推入调用堆栈的顶部。每当调用一个函数时，JavaScript引擎都会为该函数创建一个函数执行上下文，将其推入调用堆栈的顶部，然后开始执行该函数。
+
+调用堆栈的大小固定，具体取决于Web浏览器或Node.js主机环境的实现。
+
+### 示例
+
+```
+function add(a, b) {
+    return a + b;
+}
+
+function average(a, b) {
+    return add(a, b) / 2;
+}
+
+let x = average(10, 20);
+```
+
+下图说明了所有步骤中调用堆栈的总体状态：
+![](/images/JavaScript-Call-Stack.png)
+<img src="../images/JavaScript-Call-Stack.png">
+
+### 异步JavaScript
+
+JavaScript调用堆栈可帮助跟踪执行上下文或函数调用。
+JavaScript是单线程编程语言。 JavaScript引擎只有一个调用堆栈，因此一次只能执行一项操作.
+
+执行脚本时，JavaScript引擎逐行从上至下执行代码。 换句话说，它是同步的。
+
+异步与同步相反，这意味着同时发生。 JavaScript可以承载异步任务，例如回调，promise和async / await.
+
+## JavaScript 事件循环
+
+JavaScript基于事件循环实现并发模型。
+
+### JavaScript 单线程模式
+
+JavaScript是单线程编程语言，一次只能做一件事。
+
 JavaScript引擎从顶部开始执行脚本，然后逐步创建执行上下文并将函数推入和弹出调用堆栈。
-JavaScript runtime运行时一次只能做一件事。
+准确的说，JavaScript runtime运行时一次只能做一件事。
 web浏览器除了JavaScript引擎,还有很多组件,. 当你调用 setTimeout() 方法, AJAX 被调用, 或者在点击按钮时, web浏览器能够并行一步处理这些行为.
 setTimeout(), AJAX calls, and DOM events 是web浏览器的web APIs的一部分.
 如果您要执行的功能要花很长时间，则执行该功能时您无法在网络浏览器上执行任何操作。 该网页只是挂起。
 考虑如下情况:
+
 ```
 function task(message) {
     // emulate time consuming task
@@ -177,6 +230,7 @@ setTimeout(() => {
 console.log('Done!');
 ```
 在我们的示例中，当调用setTimeout（）函数时，将其放在调用堆栈上，并且Web API创建一个计时器，该计时器将在1秒后过期。
+
 <img src="../images/javascript-event-loop-step-1.png">
 
 然后将task（）函数放入称为回调队列或任务队列的队列中：
@@ -281,9 +335,11 @@ fetch(url)
 
 
 
+# 闭包
 
 
 
+内部函数访问外部函数中的局部变量，就构成了闭包，如果内部函数被当做返回值返回出去没有被销毁，那么那个外部函数的局部变量不会被销毁，正常来说函数里面的变量的作用域出了大括号就会被销毁，闭包改变了这种规则
 
 
 

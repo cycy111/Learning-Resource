@@ -1,4 +1,58 @@
+
+
+# require和import的区别
+
+![enter image description here](D:\File\Learning-Resource\images\5WgFJ.png)
+
+Node.js遵循commonJS模块系统，它需要包含存在于单独文件中的模块，并且为此目的，node.js中提供了诸如“ require”和“ ES6 import and export”之类的方法。
+
+另外，require不能选择性的只加载一部分，而import可以做到。require是同步的（一步一步的），而import是异步（不需要等前面的import）
+
+**require**: 它是内置函数，是包含存在于单独文件中的模块的最简单方法。 require的基本功能是它读取JavaScript文件，执行该文件，然后继续返回导出对象。 它不仅允许您添加内置的核心Node模块，而且还可以在所需程序中添加基于社区的模块（node_modules）和本地模块。 node中有各种内置模块，例如HTTP模块，URL模块，查询字符串模块，路径模块等等。
+
+语法：
+
+* 包含内置模块:
+
+  ```
+  const express = require('express');
+  ```
+
+* 包含本地模块，不需要配置路径
+
+  ```
+  const express = require('express');
+  ```
+
+**ES6 Import & Export:** 该语句用于引用ES模块。 这些语句无法导入其他文件类型。 仅在ES模块中允许使用它们，并且此语句的说明符可以是URL样式的相对路径或包名称。
+
+而Export语句允许用户将其创建的对象和方法导出到其他程序。 例如，如果您分配一个字符串文字，那么它将把该字符串文字公开为一个模块。
+
+语法：
+
+* 导入文件：
+
+  ```
+  // Importing submodule from 
+  // 'es-module-package/private-module.js';
+  import './private-module.js';
+  ```
+
+* 导出文件：
+
+  ```
+  module.exports = 'A Computer Science Portal';
+  ```
+
+| REQUIRE                                                      | ES6 IMPORT AND EXPORT                                        |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| Require is Non-lexical, it stays where they have put the file. | Import is lexical, it gets sorted to the top of the file.    |
+| It can be called at any time and place in the program.       | It can’t be called conditionally, it always run in the beginning of the file. |
+| You can directly run the code with require statement.        | To run a program containing import statement you have to use experimental module feature flag. |
+| If you want to use require module then you have to save file with ‘.js’ extension. | If you want to use import module then you have to save file with ‘.mjs’ extension. |
+
 # ES新语法
+
 ## arguments 和 parameter区别
 ## Default Parameters
 ## 剩余参数(Rest Parameter)
