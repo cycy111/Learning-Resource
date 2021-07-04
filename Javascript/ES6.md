@@ -54,7 +54,17 @@ Node.js遵循commonJS模块系统，它需要包含存在于单独文件中的�
 # ES新语法
 
 ## arguments 和 parameter区别
+
+函数中的arguments是指真实的传入函数的数值，函数中的parameter是函数定义中的名称。 
+
 ## Default Parameters
+
+```
+function (x, y = 2) {
+  // function code
+}
+```
+
 ## 剩余参数(Rest Parameter)
 ES6提供了一种新型的参数，即所谓的rest参数，其前缀为三个点（...）。语法如下:
 ```
@@ -68,9 +78,10 @@ function fn(a,b,...args) {
 fn(1,2,3,'A','B','C');
 ```
 args存储的值为:
+
 `[3,'A','B','C']`
---------------------------------------------------
-## (扩展运算符)Spread operator 
+
+## 扩展运算符(Spread operator)
 扩展运算符(spread)是三个点(...) 作用:将可迭代对象(比如an array,a  map, or a set.)用逗号分隔展开其中的元素。
 ### Spread operator 和Rest parameter区别
 * Spread operator展开所有对象中的元素
@@ -401,7 +412,7 @@ dog.identify(); // Dog
 ```
 ES6:
 ```
-lass Animal {
+class Animal {
     constructor(type) {
         this.type = type;
     }
