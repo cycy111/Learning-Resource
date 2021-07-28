@@ -110,6 +110,199 @@ em是常见的相对单位，适合基于特定的字号进行排版。在CSS中
 
    rem是root em的缩写。rem不是相对于当前元素，而是相对于根元素的单位。
 
+
+
+## 视口相对单位
+
+em和rem都是相对于font-size定义的，但CSS里不止有这种相对单位。
+
+视口-----浏览器窗口里网页可见部分的边框区域。
+
+* vh: 视口的1/100.
+* vm: 视口宽度的1/100.
+* vmin: 视口宽、高中较小的一方的1/100.
+* vmax: 视口宽、高中较大的一方的1/100.
+
+### 使用vw定义字号
+
+vm用于设置字号，比用vh和vw设置元素的宽和高还要实用。在一个元素加上font-size:2vw, 在一个1200px的桌面显示器上，计算值为24px；在768pz宽的平板上，计算值为15px.   但是在24屏上来说太大了，在ipone 6会缩小到7.5px。如果能够保留这种缩放的能力，但让极端情况缓和一些就更棒了。CSS的calc()函数就可以提供帮助。
+
+
+
+### 使用calc()定义字号
+
+```
+ :root {
+      font-size: calc(0.5em + 1vw);
+ }
+```
+
+0.5em保证了最小字号，1vw则确保了字体会随着视口缩放。
+
+
+
+## 无单位的数值和行高
+
+有些属性允许无单位的值（如line-height、z-index、 font-weigh）。line-height属性比较特殊，它的值既可以有单位也可以无单位。通常我们应该使用无单位的数值指定行高。
+
+```
+<body>
+    <p class='about-us'>
+    	We have built partnerships with small farms around the world to hand-select beans at the peak of season. We then carefully roast in small batches to maximize their potential.
+    </p>
+
+</body>
+```
+
+给body元素指定一个行高，允许它被其他元素继承。不管在网页设置了什么字号，这种方式都会按照预期显示。
+
+```
+body {
+line-height: 1.2;
+}
+
+.about-us {
+font-size: 2em;
+}
+  
+```
+
+如果用有单位的值定义行高，可能会产生意想不到的结果如下图,每行文字会重叠：
+
+```
+body {
+	line-height: 1.2em;
+}
+
+.about-us {
+	font-size: 2em;
+}
+```
+
+## 自定义属性
+
+层叠变量的自定义属性给CSS引进了变量的概念，开启了一种全新的基于上下文的动态样式。你可以声明一个变量，为它赋值，然后在其他地方引用。
+
+除了IE，自定义属性已经得到各大主流浏览器的支持。要了解更新更全的情况，可以在Can I Use网站中检索“CSS Variables”.
+
+```
+:root {
+	--main-font: Helvetica, Arial, sans-serif;
+}
+p {
+	font-family: var(--main-font);//使用自定义属性
+}
+```
+
+使用自定义属性定义颜色：
+
+```
+:root {
+    --main-font: Helvetica, Arial, sans-serif;
+    --brand-color: #369;
+}
+
+p {
+    font-family: var(--main-font);
+    color: var(--brand-color);
+}
+```
+
+var函数接受第二个参数，它指定了备用值。
+
+```
+:root {
+	--main-font: Helvetica, Arial, sans-serif;
+}
+
+p {
+	font-family: var(--main-font, sans-serif);
+	color: var(--rand-color, blue);//--rand-color未定义，所以使用了备用值
+}
+
+```
+
+### 使用JavaScript改变自定义属性
+
+```
+
+    :root {
+      font-size: calc(0.5em + 1vw);
+      --main-bg: #fff;
+      --main-color: #000;
+    }
+
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    .dark {
+      margin-top: 2em;
+      padding: 1em;
+      background-color: #999;
+      --main-bg: #333;
+      --main-color: #fff;
+    }
+
+    .panel {
+      font-size: 1rem;
+      padding: 1em;
+      border: 1px solid #999;
+      border-radius: 0.5em;
+      background-color: var(--main-bg);
+      color: var(--main-color);
+    }
+
+    .panel > h2 {
+      margin-top: 0;
+      font-size: 0.8em;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .panel.large {
+      font-size: 1.2em;
+    }
+```
+
+
+
+```
+<div class="panel">
+    <h2>Single-origin</h2>
+    <div class="body">
+      We have built partnerships with small farms
+      around the world to hand-select beans at the
+      peak of season. We then carefully roast in
+      small batches to maximize their potential.
+    </div>
+  </div>
+
+  <aside class="dark">
+    <div class="panel">
+      <h2>Single-origin</h2>
+      <div class="body">
+        We have built partnerships with small farms
+        around the world to hand-select beans at the
+        peak of season. We then carefully roast in
+        small batches to maximize their potential.
+      </div>
+    </div>
+  </aside>
+
+  <script type="text/javascript">
+  	let rootElement = document.documentElement;
+    let styles = getComputedStyle(rootElement);
+    let mainColor = styles.getPropertyValue('--main-bg');
+    console.log(String(mainColor).trim());
+
+    rootElement = document.documentElement;
+    rootElement.style.setProperty('--main-bg', '#cdf');
+  </script>
+```
+
+
+
 ## 盒模型
 
 将两列放到合适的位置，首先用浮动，分别设置70%和30%的宽度。当给一个元素设置宽或高的时候，盒模型默认行为,指定的是内容的宽和高.
@@ -164,29 +357,33 @@ em是常见的相对单位，适合基于特定的字号进行排版。在CSS中
 
 两列并没有并排出现，而是折行线上。虽然上面两列的宽度设置为 70%和30%，但他们总共占据的宽度超过了可用空间的100%。
 
+![image-20210719225014472](D:\File\Learning-Resource\images\image-20210719225014472.png)
+
 ### 调整盒模型
 
 在CSS中可以用box-sizing属性调整盒模型的行为。box-sizing的默认值为content-box。将属性值设置为border-box后，height和width属性会设置内容、内边距以及边框的总和。这样上面两列刚好并排。
+
+![image-20210719225158319](D:\File\Learning-Resource\images\image-20210719225158319.png)
 
 **给两列间加空隙**
 
 ```
 .main{
-            float: left;
-            width: 70%;
-            box-sizing: border-box;
-            border-radius: .5em;
-            background-color: lightcoral;
-        }
-        .siderbar{
-            float: left;
-            width: calc(30% - 1.5em);
-            margin-left: 1.5em;
-            box-sizing: border-box;
-            padding: 1.5em;
-            border-radius: .5em;
-            background-color: lightgreen;
-        }
+    float: left;
+    width: 70%;
+    box-sizing: border-box;
+    border-radius: .5em;
+    background-color: lightcoral;
+}
+.siderbar{
+    float: left;
+    width: calc(30% - 1.5em);
+    margin-left: 1.5em;
+    box-sizing: border-box;
+    padding: 1.5em;
+    border-radius: .5em;
+    background-color: lightgreen;
+}
 ```
 
 使用em指定间距，能让代码意图更加明显。
@@ -239,7 +436,7 @@ em是常见的相对单位，适合基于特定的字号进行排版。在CSS中
            }
    ```
 
-   不像block元素，默认情况下，显示为table的元素不会扩展到100%，因此需要明确指定宽度 。以上代码基本实现需求，就是缺少间隙。因为外边距不会作用域table-cell元素，所以要修改代码，让间隔生效。
+   不像block元素，默认情况下，显示为table的元素不会扩展到100%，因此需要明确指定宽度 。以上代码基本实现需求，就是缺少间隙。因为外边距不会作用于table-cell元素，所以要修改代码，让间隔生效。
 
    使用border-spacing属性来定义单元格间距。该属性接受两个长度值：水平间距和垂直间距。
 
@@ -253,7 +450,7 @@ em是常见的相对单位，适合基于特定的字号进行排版。在CSS中
 
    
 
-   border-spacing作用域单元格之间和表格外边缘
+   border-spacing作用于单元格之间和表格外边缘
 
    
 
@@ -323,3 +520,178 @@ em是常见的相对单位，适合基于特定的字号进行排版。在CSS中
 ### 垂直居中问题
 
 vertical-align对块级元素是不生效的，它只会影响行内元素或者table-cell元素。CSS表格布局可以用vertical-align:middle实现垂直居中。
+
+## 外边距折叠
+
+## 容器内元素间距
+
+给侧边栏加上两个跳转到社交媒体页的按钮。
+
+```
+<body>
+  <header>
+    <h1>Franklin Running Club</h1>
+  </header>
+  <div class="container">
+    <main class="main">
+      <h2>Come join us!</h2>
+      <p>
+        The Franklin Running club meets at 6:00pm every Thursday
+        at the town square. Runs are three to five miles, at your
+        own pace.
+      </p>
+    </main>
+    <aside class="sidebar">
+      <a href="/twitter" class="button-link">
+        follow us on Twitter
+      </a>
+      <a href="/facebook" class="button-link">
+        like us on Facebook
+      </a>
+      <a href="/sponsors" class="sponsor-link">
+        become a sponsor
+      </a>
+    </aside>
+  </div>
+
+</body>
+```
+
+设置按钮元素间距，使用相邻的兄弟组合器（+）选中同一个父元素下紧跟在其他button-link后面的button-link元素。
+
+```
+
+    :root {
+      box-sizing: border-box;
+    }
+
+    *,
+    ::before,
+    ::after {
+      box-sizing: inherit;
+    }
+
+    body {
+      background-color: #eee;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    header {
+      padding: 1em 1.5em;
+      color: #fff;
+      background-color: #0072b0;
+      border-radius: .5em;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    .main {
+      width: 70%;
+      background-color: #fff;
+      border-radius: .5em;
+    }
+
+    .sidebar {
+      width: 30%;
+      padding: 1.5em;
+      margin-left: 1.5em;
+      background-color: #fff;
+      border-radius: .5em;
+    }
+
+    .button-link {
+      display: block;
+      padding: .5em;
+      color: #fff;
+      background-color: #0090C9;
+      text-align: center;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .button-link + .button-link {
+      margin-top: 1.5em;
+    }
+
+    .sponsor-link {
+      display: block;
+      color: #0072b0;
+      font-weight: bold;
+      text-decoration: none;
+    }
+```
+
+![image-20210726215811870](D:\File\Learning-Resource\images\image-20210726215811870.png)
+
+侧边栏第二个按钮和底部链接之间缺少间距, 可以使用更通用的解决方案：猫头鹰选择器，调整样式：
+
+```
+
+    :root {
+      box-sizing: border-box;
+    }
+
+    *,
+    ::before,
+    ::after {
+      box-sizing: inherit;
+    }
+
+    body {
+      background-color: #eee;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    body * + * {			//用猫头鹰选择器全局设置上下堆叠的元素的间距
+      margin-top: 1.5em;
+    }
+
+    header {
+      padding: 1em 1.5em;
+      color: #fff;
+      background-color: #0072b0;
+      border-radius: .5em;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    .main {
+      width: 70%;
+      padding: 1em 1.5em;
+      background-color: #fff;
+      border-radius: .5em;
+    }
+
+    .sidebar {
+      width: 30%;
+      padding: 1.5em;
+      margin-top: 0;  		//新增加
+      margin-left: 1.5em;
+      background-color: #fff;
+      border-radius: .5em;
+    }
+
+    .button-link {
+      display: block;
+      padding: .5em;
+      color: #fff;
+      background-color: #0090C9;
+      text-align: center;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .sponsor-link {
+      display: block;
+      color: #0072b0;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+```
+
+猫头鹰选择器会选中页面上有着相同级的非第一个子元素。
